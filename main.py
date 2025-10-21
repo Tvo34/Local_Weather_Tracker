@@ -45,7 +45,7 @@ def get_weather(city):
         "observation_time": weather_data.get("time")
     })
 
-@app.route("/ingest", methods=["POST"])
+@app.route("/ingest", methods=["GET", "POST"])
 def create_observation():
     """Create a new observation."""
     city = request.args.get("city")
