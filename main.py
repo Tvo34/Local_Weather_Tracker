@@ -1,5 +1,9 @@
 from flask import Flask, jsonify, request
+from connect import DB_Connection as db
+
+
 import requests
+
 
 app = Flask(__name__)
 
@@ -45,7 +49,7 @@ def get_weather(city):
         "observation_time": weather_data.get("time")
     })
 
-@app.route("/ingest", methods=["GET", "POST"])
+@app.route("/ingest", methods=["GET"])
 def create_observation():
     """Create a new observation."""
     city = request.args.get("city")
@@ -66,25 +70,52 @@ def create_observation():
         "message": "pass."
     })
 
-@app.route("/observations", methods=["GET"])
-def read_all_observations():
-    """Read all observations."""
-    pass
-
-@app.route("/observations/<int:observation_id>", methods=["GET"])
-def read_one_observation(observation_id):
-    """Read a single observation."""
-    pass
+@app.route("/observations/<int:observation_id>", methods=['GET'])
+def get_observation(observation_id):
+    """Fetch weather oservation by ID"""
+    results = db().get_observation_by_id(observation_id)
+    
+    if results:
+        observation_dict = {
+            "id": results[0],
+            "city": results[1],
+            "country": results[2],
+            "latitude": results[3],
+            "longitude": results[4],
+            "temperature_c": results[5],
+            "windspeed_kmh": results[6],
+            "observation_time": results[7],
+            "notes": results[8]
+        }
+        return jsonify(observation_dict)
+    else:
+        return jsonify({"error": f"No observation found with ID {observation_id}"}), 404
 
 @app.route("/observations/<int:observation_id>", methods=["PUT"])
 def update_observation(observation_id):
-    """Update an existing observation."""
-    pass
+    """Update observation by id."""
+    data = request.get_json()
+    
+    city = data.get("city")
+    country = data.get("country")
+    latitude = data.get("latitude")
+    longitude = data.get("longitude")
+    temperature_c = data.get("temperature_c")
+    windspeed_kmh = data.get("windspeed_kmh")
+
+    database = db()
+    database.update_observation_by_id(
+        observation_id, city, country, latitude, longitude, temperature_c, windspeed_kmh
+    )
+
+    return jsonify({"message": f"Observation {observation_id} updated successfully"})
 
 @app.route("/observations/<int:observation_id>", methods=["DELETE"])
 def delete_observation(observation_id):
-    """Delete an observation."""
-    pass
+    """Delete an observation by ID."""
+    database = db()
+    database.delete_observation(observation_id)
+    return jsonify({"message": f"Observation {observation_id} deleted successfully"})
 
 if __name__ == "__main__":
     app.run(debug=True)
