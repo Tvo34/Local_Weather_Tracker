@@ -93,7 +93,7 @@ def get_observation(observation_id):
 
 @app.route("/observations/<int:observation_id>", methods=["PUT"])
 def update_observation(observation_id):
-    """Update observation by id."""
+    """Update an observation by id."""
     data = request.get_json()
     
     city = data.get("city")
