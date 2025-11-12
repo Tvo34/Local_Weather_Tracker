@@ -38,26 +38,20 @@ class DB_Connection:
                 self.connection.close()
 
 
-    def get_all_observation(self):
-        """Retrieve all weather observation from the database."""
+    def get_all_observations(self):
+        """Retrieve all weather observations from the database."""
         try:
-            self.connection = psycopg.connect(
-                dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST, port=DB_PORT
-            )
+            # self.connection = psycopg.connect(
+            #     dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST, port=DB_PORT
+            # )
             self.cursor = self.connection.cursor()
-
             select_query = "SELECT * FROM weather_observation;"
             self.cursor.execute(select_query)
-            observation = self.cursor.fetchall()
-            return observation
-        
-        except (Exception, psycopg.Error) as error:
-            print(f"Error fetching observation: {error}")
+            return self.cursor.fetchall()
+        except Exception as error:
+            print(f"Error fetching observation by id: {error}")
             return []
-        finally:
-            if self.connection:
-                self.cursor.close()
-                self.connection.close()
+        
 
     def get_observation_by_id(self, observation_id):
         """Retrieve a specific observation by its ID."""

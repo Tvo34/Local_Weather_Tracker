@@ -110,6 +110,32 @@ def update_observation(observation_id):
 
     return jsonify({"message": f"Observation {observation_id} updated successfully"})
 
+@app.route("/observations", methods=["GET"])
+def get_all_observations():
+    """Fetch all weather observations."""
+    results = db().get_all_observations()
+
+    if results:
+        observations_list = []
+        for row in results:
+            observation_dict = {
+                "id": row[0],
+                "city": row[1],
+                "country": row[2],
+                "latitude": row[3],
+                "longitude": row[4],
+                "temperature_c": row[5],
+                "windspeed_kmh": row[6],
+                "observation_time": row[7],
+                "notes": row[8]
+            }
+            observations_list.append(observation_dict)
+
+        return jsonify(observations_list)
+    else:
+        return jsonify({"message": "No observations found"}), 200
+
+
 @app.route("/observations/<int:observation_id>", methods=["DELETE"])
 def delete_observation(observation_id):
     """Delete an observation by ID."""
