@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, request
 from connect import DB_Connection as db
 
-
 import requests
 
 
@@ -142,6 +141,7 @@ def delete_observation(observation_id):
     database = db()
     database.delete_observation(observation_id)
     return jsonify({"message": f"Observation {observation_id} deleted successfully"})
+
 
 if __name__ == "__main__":
     app.run(debug=True)

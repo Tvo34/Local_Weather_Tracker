@@ -1,5 +1,15 @@
 import psycopg 
 from psycopg import OperationalError
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  
+
+username = os.getenv('username')
+password = os.getenv("password")
+database_url = os.getenv("DATABASE_URL")
+
+print(username, password)
 
 DB_NAME = "weather_observation"
 DB_USER ="jennie"
