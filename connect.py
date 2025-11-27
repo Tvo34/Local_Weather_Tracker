@@ -15,7 +15,7 @@ DB_NAME = "weather_observation"
 DB_USER ="jennie"
 DB_PASSWORD = "4343"
 DB_HOST = "localhost"
-DB_PORT = "5432"
+DB_PORT = "5434"
 
 class DB_Connection:
 
@@ -23,7 +23,7 @@ class DB_Connection:
         self.connection = psycopg.connect(
             dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST, port=DB_PORT
         )
-        self.cursor = self.connection.cursor()
+        # self.cursor = self.connection.cursor()
 
     def create_weather_observation(self, id, city, country, latitude, longitude, temperature_c, windspeed_kmh):
         """Create a new weather observation in the database."""
@@ -45,7 +45,7 @@ class DB_Connection:
         finally:
             if self.connection:
                 self.cursor.close()
-                self.connection.close()
+                # self.connection.close()
 
 
     def get_all_observations(self):
@@ -78,7 +78,7 @@ class DB_Connection:
         finally:
             if self.connection:
                 self.cursor.close()
-                self.connection.close()
+                # self.connection.close()
 
     def update_observation_by_id(self, observation_id, city, country, latitude, longitude, temperature_c, windspeed_kmh):
         """Updates observation by ID."""
@@ -114,7 +114,7 @@ class DB_Connection:
         finally:
             if self.connection:
                 self.cursor.close()
-                self.connection.close()
+                # self.connection.close()
 
 
     def update_latitude_and_longitude(self, id, latitude, longitude):
@@ -135,7 +135,7 @@ class DB_Connection:
         finally:
             if self.connection:
                 self.cursor.close()
-                self.connection.close()
+                # self.connection.close()
 
 
     def delete_observation(self, observation_id):
@@ -161,10 +161,10 @@ class DB_Connection:
         finally:
             if self.connection:
                 self.cursor.close()
-                self.connection.close()
+                # self.connection.close()
 
     def close(self):
         if self.connection:
             self.cursor.close()
-            self.connection.close()
+            # self.connection.close()
                    

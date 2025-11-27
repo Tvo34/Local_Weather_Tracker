@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from connect import DB_Connection as db
 
 import requests
@@ -8,11 +8,8 @@ app = Flask(__name__)
 
 @app.route("/")
 def home_view():
-    """Home view function."""
-    return jsonify({
-        "message": "Welcome to the Local Weather Tracker!",
-    })
-
+    return render_template("index.html")
+    
 @app.route("/about")
 def about_view():
     """About view function."""
