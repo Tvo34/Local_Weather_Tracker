@@ -43,7 +43,7 @@ createdb weather_observation
 create .env
 ```
 ```bash
-username=jennie
+username=YOURUSERNAME
 password=mypassword
 database=weather_observation
 host=localhost
