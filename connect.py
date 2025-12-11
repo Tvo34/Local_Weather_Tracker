@@ -1,29 +1,33 @@
-import psycopg 
+import psycopg
 from psycopg import OperationalError
 import os
 from dotenv import load_dotenv
 
-load_dotenv()  
+load_dotenv()
 
-username = os.getenv('username')
-password = os.getenv("password")
-database_url = os.getenv("DATABASE_URL")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 
-print(username, password)
+print("DEBUG DB_NAME =", DB_NAME)
 
-DB_NAME = "weather_observation"
-DB_USER ="jennie"
-DB_PASSWORD = "4343"
-DB_HOST = "localhost"
-DB_PORT = "5434"
 
-class DB_Connection:
+#local DB config-> move to .env for security
 
-    def __init__(self):
+class DB_Connection: #this class handles DB conncection & operations
+
+    def __init__(self): #opens a DB connection on initialization
         self.connection = psycopg.connect(
-            dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST, port=DB_PORT
-        )
-        # self.cursor = self.connection.cursor()
+    host=DB_HOST,
+    port=DB_PORT,
+    dbname=DB_NAME,
+    user=DB_USER,
+    password=DB_PASSWORD
+)
+        self.cursor = self.connection.cursor()
+
 
     def create_weather_observation(self, id, city, country, latitude, longitude, temperature_c, windspeed_kmh):
         """Create a new weather observation in the database."""
@@ -36,17 +40,23 @@ class DB_Connection:
 
             self.connection.commit()
             print(f"New observation created with city: {city}")
+        #Run SQL INSERT statement -> execute it using placeholder
+        # Commits the transaction to save data    
+
+        #self. (this objects stores its own database connection)
+        #if no self. -> the variable exists only inside the function
 
         except (Exception, psycopg.Error) as error:
             print(f"Error while creating observation: {error}")
             if self.connection:
                 self.connection.rollback()
+        #if error rollback is used to keep the db        
         
         finally:
             if self.connection:
                 self.cursor.close()
                 # self.connection.close()
-
+        #always run. close cursor to prevent memory leaks
 
     def get_all_observations(self):
         """Retrieve all weather observations from the database."""
@@ -98,9 +108,9 @@ class DB_Connection:
             self.cursor.execute(
                 update_query,(city, country, latitude, longitude, temperature_c, windspeed_kmh, observation_id))
 
-            rows_affected = self.cursor.rowcount
+            rows_affected = self.cursor.rowcount #check how many rows were affected
 
-            if rows_affected > 0:
+            if rows_affected > 0: #at least 1 line is fixed
                 print(f"Successfully updated observation with ID {observation_id}.")
                 self.connection.commit()
             else:
@@ -122,7 +132,7 @@ class DB_Connection:
         try:
             self.cursor = self.connection.cursor()
 
-            update_query = "UPDATE weather_observation SET latitude = %s, longitude = %s WHERE observation_id = %s;"
+            update_query = "UPDATE weather_observation SET latitude = %s, longitude = %s WHERE id = %s;"
             self.cursor.execute(update_query, (latitude, longitude, id))
             self.connection.commit()
             print(f"Updated observation ID {id} with new latitude and longitude.")
@@ -139,7 +149,9 @@ class DB_Connection:
 
 
     def delete_observation(self, observation_id):
-        """Delete a specific task by its ID."""
+        """Delete a specific observation by its ID."""
+        print(observation_id)
+
         try:            
             self.cursor = self.connection.cursor()
             

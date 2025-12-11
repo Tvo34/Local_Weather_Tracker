@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h1>Weather in {{ city }}</h1>
+
+    <!-- nhiệt độ hiển thị -->
+    <div id="tempValue" class="temp-number"
+        data-celsius="{{ temperature }}">
+        {{ temperature }}°C
+    </div>
+
+    <button id="toggleBtn">Switch to °F</button>
+
+    <div class="info">
+        <p>🌬 <b>Windspeed:</b> {{ windspeed }} km/h</p>
+        <p>📍 <b>Latitude:</b> {{ latitude }}</p>
+        <p>📍 <b>Longitude:</b> {{ longitude }}</p>
+        <p>⏱ <b>Time:</b> {{ observation_time }}</p>
+    </div>
+</div>
+
+<style>
+.card {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    max-width: 800px;
+    margin: auto;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.temp-number {
+    font-size: 48px;
+    margin-top: -10px;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+#toggleBtn {
+    padding: 10px 28px;
+    background: #333;
+    color: white;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+</style>
+
+<script>
+    const tempEl = document.getElementById("tempValue");
+    const toggleBtn = document.getElementById("toggleBtn");
+
+    let isCelsius = true;
+    const celsius = parseFloat(tempEl.dataset.celsius);
+
+    toggleBtn.addEventListener("click", () => {
+        
+        if (isCelsius) {
+            let f = (celsius * 9/5) + 32;
+            tempEl.innerText = f.toFixed(1) + "°F";
+            toggleBtn.innerText = "Switch to °C";
+        } else {
+            tempEl.innerText = celsius + "°C";
+            toggleBtn.innerText = "Switch to °F";
+        }
+
+        isCelsius = !isCelsius;
+    });
+</script>
+
+{% endblock %}

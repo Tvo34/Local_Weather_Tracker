@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>About</title>
+    <style>
+        body {
+            margin: 0;
+            padding-top: 80px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            background: linear-gradient(180deg, #0f0f10, #1b1c1f);
+            color: white;
+            text-align: center;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: rgba(28, 28, 30, 0.70);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            z-index: 999;
+        }
+
+        .nav-item {
+            font-size: 17px;
+            text-decoration: none;
+            color: #e5e5e7;
+            transition: 0.2s ease;
+        }
+
+        .nav-item:hover {
+            color: #5ac8fa; /* Aqua Apple blue */
+        }
+
+        /* HEADER IMAGE */
+        .hero {
+            width: 100%;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .hero img {
+            width: 100%;
+            border-radius: 18px;
+            opacity: 0.85;
+            margin-bottom: 40px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+        }
+
+        /* CONTENT BOX */
+        .content {
+            max-width: 800px;
+            margin: auto;
+            text-align: left;
+            background: rgba(255,255,255,0.05);
+            padding: 40px;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 38px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        p {
+            margin-bottom: 18px;
+            font-size: 18px;
+            line-height: 1.6;
+            color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <a href="/" class="nav-item">Home</a>
+    <a href="/observations" class="nav-item">Observations</a>
+    <a href="/about" class="nav-item">About</a>
+</nav>
+
+<!-- HEADER IMAGE -->
+<div class="hero">
+    <img src="https://assamtribune.com/h-upload/2022/03/01/1330873-clouds-weather.webp"
+         alt="Weather dark theme">
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+    <h1>About Local Weather Tracker</h1>
+
+    <p>
+        Local Weather Tracker was created to make weather data feel simple, clean, and accessible.  
+Behind this minimal interface is a fully functional backend engine powered by Flask and PostgreSQL.
+    </p>
+
+    <p>
+        This project explores modern API integration, database design, and dynamic data rendering - 
+all working together to deliver real-time weather insights with clarity and precision.
+    </p>
+
+    <p>
+        Built as both a learning experience and a portfolio piece, Local Weather Tracker reflects my 
+approach to development: thoughtful design, clean architecture, and user-focused functionality.
+    </p>
+
+    <p>
+        Thank you for taking a moment to explore it.
+    </p>
+</div>
+
+</body>
+</html>

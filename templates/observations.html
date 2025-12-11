@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Observations</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            background: linear-gradient(180deg, #0f0f10, #1b1c1f);
+            color: white;
+            margin: 0;
+            padding-top: 90px;
+            text-align: center;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: rgba(28, 28, 30, 0.70);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            z-index: 999;
+        }
+
+        .nav-item {
+            font-size: 17px;
+            text-decoration: none;
+            color: #e5e5e7;
+        }
+        .nav-item:hover { color: #5ac8fa; }
+
+        h1 { font-size: 32px; margin-bottom: 30px; }
+
+        /* CARDS */
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 14px;
+            text-align: left;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            transition: 0.2s ease;
+        }
+
+        .card:hover { transform: translateY(-3px); }
+
+        .btn {
+            padding: 7px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .btn-update {
+            background-color: #5ac8fa;
+            color: black;
+        }
+
+        .btn-update:hover { background-color: #4ebeea; }
+
+        .btn-delete {
+            background-color: #ff3b30;
+            color: white;
+        }
+
+        .btn-delete:hover { background-color: #ff2d19; }
+
+        /* UPDATE MODAL */
+        #modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #modal-content {
+            background: #1c1c1e;
+            padding: 25px;
+            border-radius: 16px;
+            width: 360px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.7);
+            animation: fadeIn 0.25s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            border: none;
+            background: #2c2c2e;
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <a class="nav-item" href="/">Home</a>
+    <a class="nav-item" href="/observations">Observations</a>
+    <a class="nav-item" href="/about">About</a>
+</nav>
+
+<h1>All Observations</h1>
+
+<div class="container">
+    {% for obs in observations %}
+    <div class="card" id="obs-{{ obs.id }}">
+        <strong>{{ obs.city }} (ID: {{ obs.id }})</strong>
+        <p>Country: {{ obs.country }}</p>
+        <p>Temperature: {{ obs.temperature_c }} °C</p>
+        <p>Windspeed: {{ obs.windspeed_kmh }} km/h</p>
+        <p>Lat / Lon: {{ obs.latitude }} / {{ obs.longitude }}</p>
+
+        <button class="btn btn-update"
+            onclick="openModal({{ obs.id }}, '{{ obs.city }}', '{{ obs.country }}',
+                               {{ obs.latitude }}, {{ obs.longitude }},
+                               {{ obs.temperature_c }}, {{ obs.windspeed_kmh }})">
+            Update
+        </button>
+
+        <button class="btn btn-delete"
+            onclick="deleteObservation({{ obs.id }})">
+            Delete
+        </button>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- UPDATE MODAL -->
+<div id="modal">
+    <div id="modal-content">
+        <h3>Update Observation</h3>
+
+        <input id="m_city" placeholder="City">
+        <input id="m_country" placeholder="Country">
+        <input id="m_lat" placeholder="Latitude">
+        <input id="m_lon" placeholder="Longitude">
+        <input id="m_temp" placeholder="Temperature °C">
+        <input id="m_wind" placeholder="Windspeed km/h">
+
+        <button class="btn btn-update" onclick="submitUpdate()">Save</button>
+        <button class="btn btn-delete" onclick="closeModal()">Cancel</button>
+
+        <input type="hidden" id="m_id">
+    </div>
+</div>
+
+<script>
+function openModal(id, city, country, lat, lon, temp, wind) {
+    document.getElementById("modal").style.display = "flex";
+    m_id.value = id;
+    m_city.value = city;
+    m_country.value = country;
+    m_lat.value = lat;
+    m_lon.value = lon;
+    m_temp.value = temp;
+    m_wind.value = wind;
+}
+
+function closeModal() { document.getElementById("modal").style.display = "none"; }
+
+function submitUpdate() {
+    const id = m_id.value;
+
+    fetch(`/observations/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            city: m_city.value,
+            country: m_country.value,
+            latitude: parseFloat(m_lat.value),
+            longitude: parseFloat(m_lon.value),
+            temperature_c: parseFloat(m_temp.value),
+            windspeed_kmh: parseFloat(m_wind.value)
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        location.reload();
+    });
+}
+
+function deleteObservation(id) {
+    if (!confirm("Are you sure you want to delete this observation?")) return;
+
+    fetch(`/observations/${id}`, { method: "DELETE" })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        document.getElementById(`obs-${id}`).remove();
+    });
+}
+</script>
+
+</body>
+</html>
