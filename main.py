@@ -5,10 +5,9 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# ===== DB INIT =====
 db = DB_Connection()
 db.init_table()
-# ==================
+
 
 @app.route("/")
 def home_view():
@@ -18,7 +17,6 @@ def home_view():
 def about_view():
     return render_template("about.html")
 
-# ================= WEATHER =================
 @app.route("/weather/<city>")
 def show_weather(city):
     geo_resp = requests.get(
@@ -58,7 +56,6 @@ def show_weather(city):
         observation_time=formatted_time
     )
 
-# ================= OBSERVATIONS =================
 @app.route("/observations")
 def get_all_observations():
     try:
