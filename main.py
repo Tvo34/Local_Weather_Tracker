@@ -120,22 +120,32 @@ def get_observation(observation_id):
 def update_observation(observation_id):
     data = request.get_json()
 
-    db().update_observation_by_id(
+    success = db().update_observation_by_id(
         observation_id,
-        data.get("city"),
-        data.get("country"),
-        data.get("latitude"),
-        data.get("longitude"),
-        data.get("temperature_c"),
-        data.get("windspeed_kmh")
+        data["city"],
+        data["country"],
+        data["latitude"],
+        data["longitude"],
+        data["temperature_c"],
+        data["windspeed_kmh"]
     )
 
-    return jsonify({"message": f"Observation {observation_id} updated successfully"})
+    if success:
+        return jsonify({"message": "Updated successfully"})
+    return jsonify({"error": "Observation not found"}), 404
 
 
 @app.route("/observations", methods=["GET"])
 def get_all_observations():
-    results = db().get_all_observations()
+    try:
+        results = db().get_all_observations()
+    except Exception as e:
+        print("DB ERROR:", e)
+        return render_template(
+            "observations.html",
+            observations=[],
+            error="Database not available yet"
+        )
 
     observations_list = []
     if results:
@@ -153,13 +163,20 @@ def get_all_observations():
             })
 
     return render_template("observations.html", observations=observations_list)
-
+  
 
 @app.route("/observations/<int:observation_id>", methods=["DELETE"])
 def delete_observation(observation_id):
-    db().delete_observation(observation_id)
-    return jsonify({"message": f"Observation {observation_id} deleted successfully"})
+    success = db().delete_observation(observation_id)
+    if success:
+        return jsonify({"message": "Deleted successfully"})
+    return jsonify({"error": "Observation not found"}), 404
 
+@app.route("/init-db")
+def init_db():
+    connection = db()
+    connection.init_table()
+    return "Database initialized!"
 
 if __name__ == "__main__":
     app.run(debug=True)
