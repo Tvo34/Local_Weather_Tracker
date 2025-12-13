@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Observations</title>
+
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
@@ -10,7 +11,6 @@
             color: white;
             margin: 0;
             padding-top: 90px;
-            text-align: center;
         }
 
         /* NAVBAR */
@@ -18,14 +18,14 @@
             position: fixed;
             top: 0;
             width: 100%;
-            background-color: rgba(28, 28, 30, 0.70);
+            background-color: rgba(28, 28, 30, 0.7);
             backdrop-filter: blur(12px);
             display: flex;
             justify-content: center;
             gap: 40px;
             padding: 14px 0;
             border-bottom: 1px solid rgba(255,255,255,0.08);
-            z-index: 999;
+            z-index: 1000;
         }
 
         .nav-item {
@@ -35,9 +35,11 @@
         }
         .nav-item:hover { color: #5ac8fa; }
 
-        h1 { font-size: 32px; margin-bottom: 30px; }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-        /* CARDS */
         .container {
             max-width: 900px;
             margin: auto;
@@ -49,16 +51,10 @@
             padding: 20px;
             margin-bottom: 20px;
             border-radius: 14px;
-            text-align: left;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
-            transition: 0.2s ease;
         }
 
-        .card:hover { transform: translateY(-3px); }
-
         .btn {
-            padding: 7px 14px;
+            padding: 8px 14px;
             border-radius: 6px;
             cursor: pointer;
             border: none;
@@ -71,16 +67,11 @@
             color: black;
         }
 
-        .btn-update:hover { background-color: #4ebeea; }
-
         .btn-delete {
             background-color: #ff3b30;
             color: white;
         }
 
-        .btn-delete:hover { background-color: #ff2d19; }
-
-        /* UPDATE MODAL */
         #modal {
             display: none;
             position: fixed;
@@ -88,39 +79,29 @@
             background: rgba(0,0,0,0.6);
             justify-content: center;
             align-items: center;
-            z-index: 1000;
         }
 
         #modal-content {
             background: #1c1c1e;
-            padding: 25px;
-            border-radius: 16px;
+            padding: 20px;
+            border-radius: 12px;
             width: 360px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.7);
-            animation: fadeIn 0.25s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         input {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 12px;
-            border-radius: 6px;
-            border: none;
+            padding: 8px;
+            margin-bottom: 10px;
             background: #2c2c2e;
             color: white;
+            border: none;
+            border-radius: 6px;
         }
-
     </style>
 </head>
+
 <body>
 
-<!-- NAVBAR -->
 <nav class="navbar">
     <a class="nav-item" href="/">Home</a>
     <a class="nav-item" href="/observations">Observations</a>
@@ -130,30 +111,44 @@
 <h1>All Observations</h1>
 
 <div class="container">
-    {% for obs in observations %}
-    <div class="card" id="obs-{{ obs.id }}">
-        <strong>{{ obs.city }} (ID: {{ obs.id }})</strong>
-        <p>Country: {{ obs.country }}</p>
-        <p>Temperature: {{ obs.temperature_c }} °C</p>
-        <p>Windspeed: {{ obs.windspeed_kmh }} km/h</p>
-        <p>Lat / Lon: {{ obs.latitude }} / {{ obs.longitude }}</p>
 
-        <button class="btn btn-update"
-            onclick="openModal({{ obs.id }}, '{{ obs.city }}', '{{ obs.country }}',
-                               {{ obs.latitude }}, {{ obs.longitude }},
-                               {{ obs.temperature_c }}, {{ obs.windspeed_kmh }})">
-            Update
-        </button>
+    {% if observations and observations|length > 0 %}
+        {% for obs in observations %}
+        <div class="card" id="obs-{{ obs.id }}">
+            <h3>{{ obs.city }} (ID {{ obs.id }})</h3>
+            <p><b>Country:</b> {{ obs.country }}</p>
+            <p><b>Temperature:</b> {{ obs.temperature_c }} °C</p>
+            <p><b>Windspeed:</b> {{ obs.windspeed_kmh }} km/h</p>
+            <p><b>Latitude:</b> {{ obs.latitude }}</p>
+            <p><b>Longitude:</b> {{ obs.longitude }}</p>
 
-        <button class="btn btn-delete"
-            onclick="deleteObservation({{ obs.id }})">
-            Delete
-        </button>
-    </div>
-    {% endfor %}
+            <button class="btn btn-update"
+                onclick="openModal(
+                    {{ obs.id }},
+                    '{{ obs.city }}',
+                    '{{ obs.country }}',
+                    {{ obs.latitude }},
+                    {{ obs.longitude }},
+                    {{ obs.temperature_c }},
+                    {{ obs.windspeed_kmh }}
+                )">
+                Update
+            </button>
+
+            <button class="btn btn-delete" onclick="deleteObservation({{ obs.id }})">
+                Delete
+            </button>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align:center; opacity:0.7;">
+            No observations found.
+        </p>
+    {% endif %}
+
 </div>
 
-<!-- UPDATE MODAL -->
+<!-- MODAL -->
 <div id="modal">
     <div id="modal-content">
         <h3>Update Observation</h3>
@@ -165,33 +160,35 @@
         <input id="m_temp" placeholder="Temperature °C">
         <input id="m_wind" placeholder="Windspeed km/h">
 
+        <input type="hidden" id="m_id">
+
         <button class="btn btn-update" onclick="submitUpdate()">Save</button>
         <button class="btn btn-delete" onclick="closeModal()">Cancel</button>
-
-        <input type="hidden" id="m_id">
     </div>
 </div>
 
 <script>
 function openModal(id, city, country, lat, lon, temp, wind) {
     document.getElementById("modal").style.display = "flex";
-    m_id.value = id;
-    m_city.value = city;
-    m_country.value = country;
-    m_lat.value = lat;
-    m_lon.value = lon;
-    m_temp.value = temp;
-    m_wind.value = wind;
+    document.getElementById("m_id").value = id;
+    document.getElementById("m_city").value = city;
+    document.getElementById("m_country").value = country;
+    document.getElementById("m_lat").value = lat;
+    document.getElementById("m_lon").value = lon;
+    document.getElementById("m_temp").value = temp;
+    document.getElementById("m_wind").value = wind;
 }
 
-function closeModal() { document.getElementById("modal").style.display = "none"; }
+function closeModal() {
+    document.getElementById("modal").style.display = "none";
+}
 
 function submitUpdate() {
-    const id = m_id.value;
+    const id = document.getElementById("m_id").value;
 
     fetch(`/observations/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
             city: m_city.value,
             country: m_country.value,
@@ -203,20 +200,20 @@ function submitUpdate() {
     })
     .then(res => res.json())
     .then(data => {
-        alert(data.message);
+        alert(data.message || "Updated");
         location.reload();
     });
 }
 
 function deleteObservation(id) {
-    if (!confirm("Are you sure you want to delete this observation?")) return;
+    if (!confirm("Delete this observation?")) return;
 
     fetch(`/observations/${id}`, { method: "DELETE" })
-    .then(res => res.json())
-    .then(data => {
-        alert(data.message);
-        document.getElementById(`obs-${id}`).remove();
-    });
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message || "Deleted");
+            location.reload();
+        });
 }
 </script>
 

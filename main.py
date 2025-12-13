@@ -1,9 +1,14 @@
 from flask import Flask, jsonify, request, redirect, render_template
-from connect import DB_Connection as db
-import requests, os
+from connect import DB_Connection
+import requests
 from datetime import datetime
 
 app = Flask(__name__)
+
+# ===== DB INIT =====
+db = DB_Connection()
+db.init_table()
+# ==================
 
 @app.route("/")
 def home_view():
@@ -13,11 +18,9 @@ def home_view():
 def about_view():
     return render_template("about.html")
 
-
+# ================= WEATHER =================
 @app.route("/weather/<city>")
 def show_weather(city):
-
-
     geo_resp = requests.get(
         "https://geocoding-api.open-meteo.com/v1/search",
         params={"name": city, "count": 1}
@@ -41,87 +44,48 @@ def show_weather(city):
 
     weather = weather_resp["current_weather"]
 
-    temperature = weather["temperature"]
-    windspeed = weather["windspeed"]
-    time_iso = weather["time"]
-
-    temperature_f = (temperature * 9/5) + 32    
-
-
-    formatted_time = datetime.fromisoformat(time_iso).strftime("%b %d, %Y — %I:%M %p")
+    formatted_time = datetime.fromisoformat(weather["time"]).strftime(
+        "%b %d, %Y — %I:%M %p"
+    )
 
     return render_template(
         "result.html",
         city=city.title(),
-        temperature=temperature,
-        temperature_f=temperature_f,
-        windspeed=windspeed,
+        temperature=weather["temperature"],
+        windspeed=weather["windspeed"],
         latitude=lat,
         longitude=lon,
         observation_time=formatted_time
     )
 
+# ================= OBSERVATIONS =================
+@app.route("/observations")
+def get_all_observations():
+    try:
+        rows = db.get_all_observations()
+    except Exception as e:
+        print("DB ERROR:", e)
+        return render_template("observations.html", observations=[])
 
+    observations = []
+    for r in rows:
+        observations.append({
+            "id": r[0],
+            "city": r[1],
+            "country": r[2],
+            "latitude": r[3],
+            "longitude": r[4],
+            "temperature_c": r[5],
+            "windspeed_kmh": r[6],
+        })
 
-@app.route("/weather", methods=["GET"])
-def weather_search():
-    city = request.args.get("city")
+    return render_template("observations.html", observations=observations)
 
-    if not city:
-        return jsonify({"error": "No city provided"}), 400
-
-    return redirect(f"/weather/{city}")
-
-
-@app.route("/ingest", methods=["GET"])
-def create_observation():
-    city = request.args.get("city")
-    country = request.args.get("country")
-
-    if not city or not country:
-        return jsonify({"error": "Please provide both city and country"}), 400
-
-    return jsonify({
-        "id": 1,
-        "city": city,
-        "country": country,
-        "latitude": 0.0,
-        "longitude": 0.0,
-        "temperature_c": 20.0,
-        "windspeed_kmh": 5.0,
-        "observation_time": "2025-10-20T12:00:00Z",
-        "notes": None,
-        "message": "pass."
-    })
-
-
-@app.route("/observations/<int:observation_id>", methods=["GET"])
-def get_observation(observation_id):
-    results = db().get_observation_by_id(observation_id)
-
-    if results:
-        observation_dict = {
-            "id": results[0],
-            "city": results[1],
-            "country": results[2],
-            "latitude": results[3],
-            "longitude": results[4],
-            "temperature_c": results[5],
-            "windspeed_kmh": results[6],
-            "observation_time": results[7],
-            "notes": results[8]
-        }
-        return jsonify(observation_dict)
-    else:
-        return jsonify({"error": f"No observation found with ID {observation_id}"}), 404
-
-
-@app.route("/observations/<int:observation_id>", methods=["PUT"])
-def update_observation(observation_id):
+@app.route("/observations/<int:id>", methods=["PUT"])
+def update_observation(id):
     data = request.get_json()
-
-    success = db().update_observation_by_id(
-        observation_id,
+    success = db.update_observation_by_id(
+        id,
         data["city"],
         data["country"],
         data["latitude"],
@@ -129,54 +93,12 @@ def update_observation(observation_id):
         data["temperature_c"],
         data["windspeed_kmh"]
     )
+    return jsonify({"message": "Updated successfully"}) if success else jsonify({"error": "Not found"}), 404
 
-    if success:
-        return jsonify({"message": "Updated successfully"})
-    return jsonify({"error": "Observation not found"}), 404
-
-
-@app.route("/observations", methods=["GET"])
-def get_all_observations():
-    try:
-        results = db().get_all_observations()
-    except Exception as e:
-        print("DB ERROR:", e)
-        return render_template(
-            "observations.html",
-            observations=[],
-            error="Database not available yet"
-        )
-
-    observations_list = []
-    if results:
-        for row in results:
-            observations_list.append({
-                "id": row[0],
-                "city": row[1],
-                "country": row[2],
-                "latitude": row[3],
-                "longitude": row[4],
-                "temperature_c": row[5],
-                "windspeed_kmh": row[6],
-                "observation_time": row[7],
-                "notes": row[8]
-            })
-
-    return render_template("observations.html", observations=observations_list)
-  
-
-@app.route("/observations/<int:observation_id>", methods=["DELETE"])
-def delete_observation(observation_id):
-    success = db().delete_observation(observation_id)
-    if success:
-        return jsonify({"message": "Deleted successfully"})
-    return jsonify({"error": "Observation not found"}), 404
-
-@app.route("/init-db")
-def init_db():
-    connection = db()
-    connection.init_table()
-    return "Database initialized!"
+@app.route("/observations/<int:id>", methods=["DELETE"])
+def delete_observation(id):
+    success = db.delete_observation(id)
+    return jsonify({"message": "Deleted successfully"}) if success else jsonify({"error": "Not found"}), 404
 
 if __name__ == "__main__":
     app.run(debug=True)
