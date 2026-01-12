@@ -81,7 +81,11 @@ http://127.0.0.1:5000/observations
 ```bash
 http://127.0.0.1:5000/observations/1
 ```
-
+## Live Demo
+copy this URL and paste on your browser to see
+```bash
+https://local-weather-tracker-z9o8.onrender.com
+```
 
 
 
