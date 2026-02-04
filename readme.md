@@ -9,7 +9,6 @@ A python application that fetches real-time weather data from Open-Meteo API and
 - Easy-to-use Python interface
 - Simple HTML homepage template
 
-
 ## Installation
 
 #### Required software
