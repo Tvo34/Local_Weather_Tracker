@@ -10,9 +10,16 @@ A python application that fetches real-time weather data from Open-Meteo API and
 - Simple HTML homepage template
 
 ## Screenshots
-- Home (screenshots/home.png)
-- Results (screenshots/results.png)
-- observations.png (screenshots/observations.png)
+
+### Home
+![Home](screenshots/home.png)
+
+### Results
+![Results](screenshots/results.png)
+
+### Observations
+![Observations](screenshots/observations.png)
+
 
 ## Installation
 
